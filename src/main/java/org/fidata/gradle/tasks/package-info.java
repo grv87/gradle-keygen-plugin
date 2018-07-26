@@ -1,6 +1,5 @@
-#!/usr/bin/env groovy
 /*
- * org.fidata.keygen Gradle plugin
+ * org.fidata.gradle.tasks Package Info
  * Copyright © 2018  Basil Peace
  *
  * This file is part of gradle-keygen-plugin.
@@ -17,20 +16,7 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.fidata.gradle
-
-import groovy.transform.CompileStatic
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.fidata.gradle.tasks.GenerateSSHKeyTask
-
 /**
- * Provides an environment for a general, language-agnostic project
+ * Gradle tasks developed by FIDATA
  */
-@CompileStatic
-final class KeygenPlugin implements Plugin<Project> {
-  void apply(Project project) {
-    project.extensions.create 'keygen', KeygenExtension
-    project.extensions.extraProperties['GenerateSSHKeyTask'] = GenerateSSHKeyTask
-  }
-}
+package org.fidata.gradle.tasks;

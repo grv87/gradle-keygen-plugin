@@ -24,7 +24,16 @@ plugins {
 
 description = 'Provides Keygen task to Gradle' // TODO
 
+license = 'Apache-2.0'
 publicReleases = true
+
+contacts {
+  'grv87@yandex.ru' {
+    moniker 'Basil Peace'
+    github 'grv87'
+    roles 'owner', 'developer'
+  }
+}
 
 dependencies {
   implementation 'com.jcraft:jsch:0.1.54'
@@ -40,19 +49,20 @@ gradlePlugin {
 }
 
 dependencies {
-  // compatTestImplementation group: 'commons-io', name: 'commons-io', version: 'latest.release'
+  compatTestImplementation group: 'commons-io', name: 'commons-io', version: 'latest.release'
 }
 
 stutter {
+  sparse = true
   java(8) {
-    compatibleRange '2.10'
+    compatibleRange '4.3'
   }
   java(9) {
-    compatibleRange '2.10'
+    compatibleRange '4.3'
   }
 }
 
-// tasks.codenarcCompatTest.disabledRules.add 'JavaIoPackageAccess'
+tasks.codenarcCompatTest.disabledRules.add 'JavaIoPackageAccess'
 
 pluginBundle.plugins {
   keygenPlugin {

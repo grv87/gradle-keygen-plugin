@@ -17,9 +17,17 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+package org.fidata.gradle.tasks
+
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.KeyPair
+import groovy.transform.CompileStatic
+import org.fidata.gradle.KeygenExtension
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -27,40 +35,34 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Task to generate SSH key
  */
+@CompileStatic
 class GenerateSSHKeyTask extends DefaultTask {
   private final static JSch JSCH = new JSch()
 
-  private File privateKeyFile
-  private File publicKeyFile
-
   /**
-   * @return private key file
+   * Private key file
    */
   @OutputFile
-  File getPrivateKeyFile() { privateKeyFile }
+  final RegularFileProperty privateKeyFile = newOutputFile()
   /**
-   * @param privateKeyFile private key file
-   */
-  void setPrivateKeyFile(File privateKeyFile) {
-    this.privateKeyFile = privateKeyFile
-    this.publicKeyFile = project.file("${ privateKeyFile }.pub")
-  }
-  /**
-   * @return public key file
+   * Public key file
    */
   @OutputFile
-  File getPublicKeyFile() { publicKeyFile }
+  final Provider<RegularFile> publicKeyFile = project.layout.projectDirectory.file(project.provider({ "${ privateKeyFile.get()?.asFile }.pub" }))
 
+  static final int DSA = KeyPair.DSA
+  static final int RSA = KeyPair.RSA
+  static final int ECDSA = KeyPair.ECDSA
   /**
    * Type of the key. See constants in {@link KeyPair} for valid values
    */
   @Input
-  int keyType = KeyPair.RSA
+  final Property<Integer> keyType = project.objects.property(Integer)
   /**
-   * Type of the key
+   * Size of the key
    */
   @Input
-  int keySize = 4096
+  final Property<Integer> keySize = project.objects.property(Integer)
   /**
    * Email to add to public key as comment
    */
@@ -69,7 +71,7 @@ class GenerateSSHKeyTask extends DefaultTask {
 
   GenerateSSHKeyTask() {
     onlyIf {
-      !privateKeyFile.exists() || !publicKeyFile.exists()
+      !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
     }
   }
 
@@ -78,9 +80,10 @@ class GenerateSSHKeyTask extends DefaultTask {
    */
   @TaskAction
   void generate() {
-    KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType, keySize)
-    kpair.writePrivateKey(privateKeyFile.path)
-    kpair.writePublicKey(publicKeyFile.path, email)
+    KeygenExtension keygenExtension = project.extensions.getByType(KeygenExtension)
+    KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.getOrElse(keygenExtension.keyType), keySize.getOrElse(keygenExtension.keySize))
+    kpair.writePrivateKey(privateKeyFile.get().asFile.path)
+    kpair.writePublicKey(publicKeyFile.get().asFile.path, email)
     kpair.dispose()
   }
 }
