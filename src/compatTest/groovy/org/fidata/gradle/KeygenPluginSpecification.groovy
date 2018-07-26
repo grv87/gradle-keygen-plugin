@@ -121,7 +121,7 @@ class KeygenPluginSpecification extends Specification {
     GradleRunner.create()
       .withGradleVersion(System.getProperty('compat.gradle.version'))
       .withProjectDir(testProjectDir)
-      .withArguments([*arguments, '--stacktrace', '--refresh-dependencies'])
+      .withArguments([*arguments, '--full-stacktrace', '--refresh-dependencies', '--debug'])
       .withPluginClasspath()
       .build()
   }
