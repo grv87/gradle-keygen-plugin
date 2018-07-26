@@ -6,17 +6,17 @@ This plugin provides Gradle ability to generate SSH keys.
 Usage:
 ```
 plugins {
-    id 'org.fidata.keygen'
+  id 'org.fidata.keygen'
 }
 
 keygen {
-    keyType = RSA
-    keySize = 4096
+  keyType = RSA
+  keySize = 4096
 }
 
 task('generateSSHKey', type: GenerateSSHKeyTask) {
-    privateKeyFile = layout.buildDirectory.file('ssh_key')
-    email = 'test@example.com'
+  privateKeyFile = new File(buildDir, 'ssh_key')
+  email = 'test@example.com'
 }
 ```
 

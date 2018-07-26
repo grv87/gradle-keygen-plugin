@@ -21,6 +21,9 @@ package org.fidata.gradle
 
 import com.jcraft.jsch.KeyPair
 
+/**
+ * `keygen` extension for Gradle project
+ */
 class KeygenExtension {
   static final int DSA = KeyPair.DSA
   static final int RSA = KeyPair.RSA

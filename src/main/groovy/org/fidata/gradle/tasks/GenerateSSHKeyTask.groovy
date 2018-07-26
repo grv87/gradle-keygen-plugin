@@ -29,6 +29,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -48,7 +49,7 @@ class GenerateSSHKeyTask extends DefaultTask {
    * Public key file
    */
   @OutputFile
-  final Provider<RegularFile> publicKeyFile = project.layout.projectDirectory.file(project.provider({ "${ privateKeyFile.get()?.asFile }.pub" }))
+  final Provider<RegularFile> publicKeyFile = project.layout.projectDirectory.file(project.provider { "${ privateKeyFile.get()?.asFile }.pub" })
 
   static final int DSA = KeyPair.DSA
   static final int RSA = KeyPair.RSA
@@ -56,13 +57,15 @@ class GenerateSSHKeyTask extends DefaultTask {
   /**
    * Type of the key. See constants in {@link KeyPair} for valid values
    */
+  @Optional
   @Input
-  final Property<Integer> keyType = project.objects.property(Integer)
+  final Property<Integer> keyType
   /**
    * Size of the key
    */
+  @Optional
   @Input
-  final Property<Integer> keySize = project.objects.property(Integer)
+  final Property<Integer> keySize
   /**
    * Email to add to public key as comment
    */
@@ -70,6 +73,10 @@ class GenerateSSHKeyTask extends DefaultTask {
   String email
 
   GenerateSSHKeyTask() {
+    keyType = project.objects.property(Integer)
+    keyType.set((Integer)null)
+    keySize = project.objects.property(Integer)
+    keySize.set((Integer)null)
     onlyIf {
       !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
     }

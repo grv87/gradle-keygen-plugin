@@ -19,6 +19,7 @@
  */
 package org.fidata.gradle
 
+import com.jcraft.jsch.KeyPairRSA
 import spock.lang.Specification
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.BuildResult
@@ -78,9 +79,9 @@ class KeygenPluginSpecification extends Specification {
         keyType = RSA
         keySize = 4096
       }
-      
+
       task('generateSSHKey', type: GenerateSSHKeyTask) {
-        privateKeyFile = layout.buildDirectory.file('ssh_key')
+        privateKeyFile = new File(buildDir, 'ssh_key')
         email = 'test@example.com'
       }
     '''.stripIndent()
@@ -89,16 +90,16 @@ class KeygenPluginSpecification extends Specification {
     build('generateSSHKey')
 
     then: 'private key file is generated'
-    File privateKeyFile = new File(testProjectDir, 'ssh_key')
+    File privateKeyFile = new File(testProjectDir, 'build/ssh_key')
     privateKeyFile.exists()
 
     and: 'public key file is generated'
-    File publicKeyFile = new File(testProjectDir, 'ssh_key.pub')
+    File publicKeyFile = new File(testProjectDir, 'build/ssh_key.pub')
     publicKeyFile.exists()
 
     when: 'generated key is loaded'
     JSch jSch = new JSch()
-    KeyPair kpair = KeyPair.load(JSch, privateKeyFile.bytes, publicKeyFile.bytes)
+    KeyPair kpair = KeyPair.load(jSch, privateKeyFile.bytes, publicKeyFile.bytes)
 
     then: 'no exception is thrown'
     noExceptionThrown()
@@ -107,7 +108,7 @@ class KeygenPluginSpecification extends Specification {
     kpair.keyType == KeyPair.RSA
 
     and: 'key length is 4096'
-    privateKeyFile.length() == 4096
+    ((KeyPairRSA)kpair).keySize == 4096
 
     and: 'public key comment is set'
     kpair.publicKeyComment == 'test@example.com'
