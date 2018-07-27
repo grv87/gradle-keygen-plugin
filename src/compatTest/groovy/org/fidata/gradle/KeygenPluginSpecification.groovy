@@ -26,8 +26,6 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.KeyPair
 import com.jcraft.jsch.KeyPairRSA
 import com.jcraft.jsch.KeyPairDSA
-import java.nio.file.Files
-import org.apache.commons.io.FileUtils
 
 /**
  * Specification for {@link org.fidata.gradle.KeygenPlugin} class
@@ -36,8 +34,7 @@ class KeygenPluginSpecification extends Specification {
   // fields
   boolean success = false
 
-  final File testProjectDir = Files.createTempDirectory('compatTest').toFile()
-  final File testProjectDir2 = File.createTempDir('compatTest', null)
+  final File testProjectDir = File.createTempDir('compatTest', '-project')
 
   final File buildDir = new File(testProjectDir, 'build')
 
@@ -66,7 +63,7 @@ class KeygenPluginSpecification extends Specification {
      * <grv87 2018-06-27>
      */
     if (success || System.getenv().with { containsKey('CI') || containsKey('JENKINS_URL') }) {
-      FileUtils.deleteDirectory(testProjectDir)
+      testProjectDir.deleteDir()
     }
   }
 

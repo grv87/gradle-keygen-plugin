@@ -48,10 +48,6 @@ gradlePlugin {
   }
 }
 
-dependencies {
-  compatTestImplementation group: 'commons-io', name: 'commons-io', version: 'latest.release'
-}
-
 stutter {
   sparse = true
   java(8) {
