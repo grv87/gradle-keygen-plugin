@@ -19,12 +19,13 @@
  */
 package org.fidata.gradle
 
-import com.jcraft.jsch.KeyPairRSA
 import spock.lang.Specification
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.BuildResult
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.KeyPair
+import com.jcraft.jsch.KeyPairRSA
+import com.jcraft.jsch.KeyPairDSA
 import java.nio.file.Files
 import org.apache.commons.io.FileUtils
 
@@ -36,10 +37,11 @@ class KeygenPluginSpecification extends Specification {
   boolean success = false
 
   final File testProjectDir = Files.createTempDirectory('compatTest').toFile()
+  final File testProjectDir2 = File.createTempDir('compatTest', null)
+
+  final File buildDir = new File(testProjectDir, 'build')
 
   File buildFile = new File(testProjectDir, 'build.gradle')
-  File settingsFile = new File(testProjectDir, 'settings.gradle')
-  File propertiesFile = new File(testProjectDir, 'gradle.properties')
 
   // fixture methods
 
@@ -72,12 +74,12 @@ class KeygenPluginSpecification extends Specification {
   // void cleanupSpec() { }
 
   // feature methods
-  void 'generates ssh key by default'() {
-    given: 'project build file'
+  void 'generates ssh key with project-wide settings'() {
+    given: 'build file'
     buildFile << '''\
       keygen {
         keyType = RSA
-        keySize = 4096
+        keySize = 2048
       }
 
       task('generateSSHKey', type: GenerateSSHKeyTask) {
@@ -90,11 +92,11 @@ class KeygenPluginSpecification extends Specification {
     build('generateSSHKey')
 
     then: 'private key file is generated'
-    File privateKeyFile = new File(testProjectDir, 'build/ssh_key')
+    File privateKeyFile = new File(buildDir, 'ssh_key')
     privateKeyFile.exists()
 
     and: 'public key file is generated'
-    File publicKeyFile = new File(testProjectDir, 'build/ssh_key.pub')
+    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
     publicKeyFile.exists()
 
     when: 'generated key is loaded'
@@ -104,14 +106,77 @@ class KeygenPluginSpecification extends Specification {
     then: 'no exception is thrown'
     noExceptionThrown()
 
-    and: 'key type is RSA'
+    and: 'key type equals to requested'
     kpair.keyType == KeyPair.RSA
 
-    and: 'key length is 4096'
-    ((KeyPairRSA)kpair).keySize == 4096
+    and: 'key length equals to requested'
+    ((KeyPairRSA)kpair).keySize == 2048
 
     and: 'public key comment is set'
     kpair.publicKeyComment == 'test@example.com'
+
+    (success = true) != null
+  }
+
+  // feature methods
+  void 'generates ssh key with per-task settings'() {
+    given: 'build file'
+    buildFile << '''\
+      keygen {
+        keyType = RSA
+        keySize = 4096
+      }
+
+      task('generateSSHKey', type: GenerateSSHKeyTask) {
+        privateKeyFile = new File(buildDir, 'ssh_key')
+        keyType = DSA
+        keySize = 2048
+        email = 'test@example.com'
+      }
+    '''.stripIndent()
+
+    when: 'generateSSHKey task is run'
+    build('generateSSHKey')
+
+    then: 'key type equals to requested'
+    File privateKeyFile = new File(buildDir, 'ssh_key')
+    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
+    JSch jSch = new JSch()
+    KeyPair kpair = KeyPair.load(jSch, privateKeyFile.bytes, publicKeyFile.bytes)
+    kpair.keyType == KeyPair.DSA
+
+    and: 'key length equals to requested'
+    ((KeyPairDSA)kpair).keySize == 2048
+
+    (success = true) != null
+  }
+
+  // feature methods
+  void 'don\'t override existing key files'() {
+    given: 'build file'
+    buildFile << '''\
+      task('generateSSHKey', type: GenerateSSHKeyTask) {
+        privateKeyFile = new File(buildDir, 'ssh_key')
+        email = 'test@example.com'
+      }
+    '''.stripIndent()
+
+    and: 'private key file exists'
+    buildDir.mkdir()
+    String dummyKey = 'Dummy key'
+    File privateKeyFile = new File(buildDir, 'ssh_key')
+    privateKeyFile.text = dummyKey
+    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
+    publicKeyFile.text = dummyKey
+
+    when: 'generateSSHKey task is run'
+    build('generateSSHKey')
+
+    then: 'private key file is not overriden'
+    privateKeyFile.text == dummyKey
+
+    and: 'public key file is not overriden'
+    publicKeyFile.text == dummyKey
 
     (success = true) != null
   }

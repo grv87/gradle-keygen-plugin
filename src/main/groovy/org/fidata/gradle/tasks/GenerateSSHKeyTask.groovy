@@ -59,13 +59,13 @@ class GenerateSSHKeyTask extends DefaultTask {
    */
   @Optional
   @Input
-  final Property<Integer> keyType
+  final Property<Integer> keyType = project.objects.property(Integer)
   /**
    * Size of the key
    */
   @Optional
   @Input
-  final Property<Integer> keySize
+  final Property<Integer> keySize = project.objects.property(Integer)
   /**
    * Email to add to public key as comment
    */
@@ -73,9 +73,13 @@ class GenerateSSHKeyTask extends DefaultTask {
   String email
 
   GenerateSSHKeyTask() {
-    keyType = project.objects.property(Integer)
+    /*
+     * WORKAROUND:
+     * We have to reset standard type value to null manually
+     * https://github.com/gradle/gradle/issues/6108
+     * <grv87 2018-07-27>
+     */
     keyType.set((Integer)null)
-    keySize = project.objects.property(Integer)
     keySize.set((Integer)null)
     onlyIf {
       !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()

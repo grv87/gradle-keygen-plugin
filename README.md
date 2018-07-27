@@ -3,8 +3,12 @@ gradle-keygen-plugin
 
 This plugin provides Gradle ability to generate SSH keys.
 
-Usage:
+It uses [JSch](http://www.jcraft.com/jsch/) Java library,
+no installation of extra tools is required.
+
+## Usage
 ```
+
 plugins {
   id 'org.fidata.keygen'
 }
@@ -26,11 +30,17 @@ in `build` directory.
 `keyType` and `keySize` properties can be set per-task via its properties.
 Otherwise, project-wide values from `keygen` extension are used.
 
-
-
-
+Since keys can't be restored, to prevent key loss task will run
+**only if either private or public key file doesn't exist**.
+If you want to regenerate key (including when you changed desired key
+properties) you should clean them manually beforehand.
 
 Other types of keys could be supported in the future.
+
+### Compatibility
+
+*   Gradle >= 4.4
+*   Developed and tested with JDK 8
 
 
 ------------------------------------------------------------------------
