@@ -59,6 +59,7 @@ stutter {
 }
 
 tasks.codenarcCompatTest.disabledRules.addAll 'JavaIoPackageAccess', 'DuplicateNumberLiteral'
+tasks.codenarcBuildSrc.disabledRules.add 'JavaIoPackageAccess'
 
 pluginBundle.plugins {
   keygenPlugin {
