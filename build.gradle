@@ -22,11 +22,10 @@ plugins {
   id 'org.fidata.plugin' version '3.0.1'
 }
 
-description = 'Provides Keygen task to Gradle' // TODO
-
+description = 'Generates SSH keys from Gradle'
+tags.set(['keys', 'keygen', 'ssh'])
 license = 'Apache-2.0'
 publicReleases = true
-
 contacts {
   'grv87@yandex.ru' {
     moniker 'Basil Peace'
@@ -65,6 +64,5 @@ pluginBundle.plugins {
   keygenPlugin {
     id = 'org.fidata.keygen'
     displayName = 'Gradle Keygen plugin'
-    tags = ['keys', 'keygen', 'ssh']
   }
 }
