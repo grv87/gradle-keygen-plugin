@@ -62,7 +62,6 @@ tasks.named('codenarcBuildSrc').configure { disabledRules.add 'JavaIoPackageAcce
 
 pluginBundle.plugins {
   keygenPlugin {
-    id = 'org.fidata.keygen'
     displayName = 'Gradle Keygen plugin'
   }
 }
