@@ -18,13 +18,15 @@
  * permissions and limitations under the License.
  */
 plugins {
-  id 'org.fidata.project.groovy' version '2.0.0'
-  id 'org.fidata.plugin' version '2.0.0'
+  id 'org.fidata.project.groovy' version '3.0.1'
+  id 'org.fidata.plugin' version '3.0.1'
 }
 
 description = 'Provides Keygen task to Gradle' // TODO
+
 license = 'Apache-2.0'
 publicReleases = true
+
 contacts {
   'grv87@yandex.ru' {
     moniker 'Basil Peace'
