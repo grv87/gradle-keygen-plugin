@@ -160,7 +160,7 @@ node {
                   ].collect { "${ it }.html" }.join(', '), // TODO: read from directory ?
                   allowMissing: true,
                   keepAll: true,
-                  alwaysLinkToLastBuild: false /* TODO: determine if we are on develop HEAD */
+                  alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
                 ])
                 publishHTML(target: [
                   reportName: 'CompatTest',
@@ -172,7 +172,7 @@ node {
                   ].collect { "$it/index.html" }.join(', '), // TODO: read from stutter lockfile
                   allowMissing: true,
                   keepAll: true,
-                  alwaysLinkToLastBuild: false /* TODO: determine if we are on develop HEAD */
+                  alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
                 ])
               }
             }
