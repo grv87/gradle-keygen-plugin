@@ -18,8 +18,8 @@
  * permissions and limitations under the License.
  */
 plugins {
-  id 'org.fidata.project.groovy' version '3.0.1'
-  id 'org.fidata.plugin' version '3.0.1'
+  id 'org.fidata.project.groovy' version '4.0.0-SNAPSHOT'
+  id 'org.fidata.plugin' version '4.0.0-SNAPSHOT'
 }
 
 description = 'Generates SSH keys from Gradle'
