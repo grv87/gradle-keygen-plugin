@@ -31,6 +31,6 @@ import org.fidata.gradle.tasks.GenerateSSHKeyTask
 final class KeygenPlugin implements Plugin<Project> {
   void apply(Project project) {
     project.extensions.create 'keygen', KeygenExtension
-    project.extensions.extraProperties['GenerateSSHKeyTask'] = GenerateSSHKeyTask
+    project.extensions.extraProperties[GenerateSSHKeyTask.class.simpleName] = GenerateSSHKeyTask
   }
 }
