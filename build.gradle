@@ -57,8 +57,12 @@ stutter {
   }
 }
 
-tasks.named('codenarcCompatTest').configure { disabledRules.addAll 'JavaIoPackageAccess', 'DuplicateNumberLiteral' }
-tasks.named('codenarcBuildSrc').configure { disabledRules.add 'JavaIoPackageAccess' }
+tasks.named('codenarcCompatTest').configure {
+  disabledRules.addAll 'JavaIoPackageAccess', 'DuplicateNumberLiteral'
+}
+tasks.named('codenarcBuildSrc').configure {
+  disabledRules.addAll 'JavaIoPackageAccess', 'DuplicateNumberLiteral'
+}
 
 pluginBundle.plugins {
   keygenPlugin {
