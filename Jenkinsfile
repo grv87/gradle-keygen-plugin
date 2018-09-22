@@ -165,11 +165,13 @@ node {
                 publishHTML(target: [
                   reportName: 'CompatTest',
                   reportDir: 'build/reports/html/compatTest',
-                  reportFiles: [
-                    '4.9',
-                    '4.10',
-                    '4.10.1',
-                  ].collect { "$it/index.html" }.join(', '), // TODO: read from stutter lockfile
+                  reportFiles:
+                    readFile(file: '.stutter/java8.lock', encoding: 'UTF-8') // TODO: respect other Java versions
+                      .split('[\r\n]+')
+                      // Copy of algorithm from StutterExtension.getLockedVersions
+                      .findAll { !it.startsWith('#') }
+                      .collect { "${ it.trim() }/index.html" }
+                      .join(', '),
                   allowMissing: true,
                   keepAll: true,
                   alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
