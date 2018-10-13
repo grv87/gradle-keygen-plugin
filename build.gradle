@@ -18,13 +18,15 @@
  * permissions and limitations under the License.
  */
 plugins {
-  id 'org.fidata.project.groovy' version '4.0.0-SNAPSHOT'
-  id 'org.fidata.plugin' version '4.0.0-SNAPSHOT'
+  id 'org.fidata.project.groovy' version '4.1.0'
+  id 'org.fidata.plugin' version '4.1.0'
 }
 
 description = 'Generates SSH keys from Gradle'
 tags.set(['keys', 'keygen', 'ssh'])
+//noinspection GroovyUnusedAssignment
 license = 'Apache-2.0'
+//noinspection GroovyUnusedAssignment
 publicReleases = true
 contacts {
   'grv87@yandex.ru' {
