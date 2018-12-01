@@ -22,7 +22,7 @@ package org.fidata.gradle
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.fidata.gradle.tasks.GenerateSSHKeyTask
+import org.fidata.gradle.tasks.GenerateSSHKey
 
 /**
  * Provides an environment for a general, language-agnostic project
@@ -31,6 +31,6 @@ import org.fidata.gradle.tasks.GenerateSSHKeyTask
 final class KeygenPlugin implements Plugin<Project> {
   void apply(Project project) {
     project.extensions.create 'keygen', KeygenExtension
-    project.extensions.extraProperties[GenerateSSHKeyTask.simpleName] = GenerateSSHKeyTask
+    project.extensions.extraProperties[GenerateSSHKey.simpleName] = GenerateSSHKey
   }
 }
