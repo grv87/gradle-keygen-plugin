@@ -81,9 +81,6 @@ class GenerateSSHKey extends DefaultTask {
      */
     keyType.set project.provider { project.extensions.getByType(KeygenExtension).keyType }
     keySize.set project.provider { project.extensions.getByType(KeygenExtension).keySize }
-    onlyIf {
-      !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
-    }
   }
 
   /**
@@ -91,9 +88,14 @@ class GenerateSSHKey extends DefaultTask {
    */
   @TaskAction
   void generate() {
-    KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.get(), keySize.get())
-    kpair.writePrivateKey(privateKeyFile.get().asFile.path)
-    kpair.writePublicKey(publicKeyFile.get().asFile.path, email)
-    kpair.dispose()
+    didWork = !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
+    if (didWork) {
+      KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.get(), keySize.get())
+      kpair.writePrivateKey(privateKeyFile.get().asFile.path)
+      kpair.writePublicKey(publicKeyFile.get().asFile.path, email)
+      kpair.dispose()
+    } else {
+      project.logger.warn('{}: private or public key file already exists and was not replaced', this.path)
+    }
   }
 }
