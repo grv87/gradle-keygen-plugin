@@ -27,6 +27,7 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.KeyPair
 import com.jcraft.jsch.KeyPairRSA
 import com.jcraft.jsch.KeyPairDSA
+import spock.lang.Unroll
 
 /**
  * Specification for {@link org.fidata.gradle.KeygenPlugin} class
@@ -35,6 +36,9 @@ class KeygenPluginSpecification extends Specification {
   @Shared
   @SuppressWarnings('PropertyName')
   static final JSch jSch = new JSch()
+
+  static final String PRIVATE_KEY_FILE_NAME = 'ssh_key'
+  static final String PUBLIC_KEY_FILE_NAME = "${ PRIVATE_KEY_FILE_NAME }.pub"
 
   // fields
   boolean success = false
@@ -78,8 +82,8 @@ class KeygenPluginSpecification extends Specification {
   // feature methods
   void 'generates ssh key with project-wide settings'() {
     given: 'build file'
-    File privateKeyFile = new File(buildDir, 'ssh_key')
-    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
+    File privateKeyFile = new File(buildDir, PRIVATE_KEY_FILE_NAME)
+    File publicKeyFile = new File(buildDir, PUBLIC_KEY_FILE_NAME)
     String email = 'test@example.com'
     buildFile << """\
       keygen {
@@ -123,8 +127,8 @@ class KeygenPluginSpecification extends Specification {
   // feature methods
   void 'generates ssh key with per-task settings'() {
     given: 'build file'
-    File privateKeyFile = new File(buildDir, 'ssh_key')
-    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
+    File privateKeyFile = new File(buildDir, PRIVATE_KEY_FILE_NAME)
+    File publicKeyFile = new File(buildDir, PUBLIC_KEY_FILE_NAME)
     buildFile << """\
       keygen {
         keyType = RSA
@@ -153,34 +157,35 @@ class KeygenPluginSpecification extends Specification {
   }
 
   // feature methods
-  void 'don\'t override existing key files'() {
+  @Unroll
+  void 'dont override existing #keyFileDescription'() {
     given: 'build file'
     String dummyKey = 'Dummy key'
-    File privateKeyFile = new File(buildDir, 'ssh_key')
-    File publicKeyFile = new File(buildDir, 'ssh_key.pub')
     buildFile << """\
       task('generateSSHKey', type: GenerateSSHKey) {
-        privateKeyFile = new File(${ privateKeyFile.toString().inspect() })
+        privateKeyFile = new File(${ PRIVATE_KEY_FILE_NAME.inspect() })
         email = 'test@example.com'
       }
     """.stripIndent()
 
-    and: 'private key file exists'
+    and: '#keyFileDescription exists'
     buildDir.mkdir()
 
-    privateKeyFile.text = dummyKey
-    publicKeyFile.text = dummyKey
+    File keyFile = new File(buildDir, keyFileName)
+    keyFile.text = dummyKey
 
     when: 'generateSSHKey task is run'
     build('generateSSHKey')
 
-    then: 'private key file is not overriden'
-    privateKeyFile.text == dummyKey
-
-    and: 'public key file is not overriden'
-    publicKeyFile.text == dummyKey
+    then: '#keyFileDescription is not overriden'
+    keyFile.text == dummyKey
 
     (success = true) != null
+
+    where:
+    keyFileName | keyFileDescription
+    PRIVATE_KEY_FILE_NAME | 'private key file'
+    PUBLIC_KEY_FILE_NAME | 'public key file'
   }
 
   // helper methods
