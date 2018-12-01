@@ -86,6 +86,7 @@ node {
           usernamePassword(credentialsId: 'Artifactory', usernameVariable: 'ORG_GRADLE_PROJECT_artifactoryUser', passwordVariable: 'ORG_GRADLE_PROJECT_artifactoryPassword'),
           string(credentialsId: 'GPG_KEY_PASSWORD', variable: 'ORG_GRADLE_PROJECT_gpgKeyPassphrase'),
           usernamePassword(credentialsId: 'Bintray', usernameVariable: 'ORG_GRADLE_PROJECT_bintrayUser', passwordVariable: 'ORG_GRADLE_PROJECT_bintrayAPIKey'),
+          usernamePassword(credentialsId: 'Gradle Plugins', usernameVariable: 'ORG_GRADLE_PROJECT_gradlePluginsKey', passwordVariable: 'ORG_GRADLE_PROJECT_gradlePluginsSecret'),
         ]) {
           BuildInfo buildInfo = null
           try {
@@ -136,49 +137,60 @@ node {
                 )
               }
             }
-            stage('Check') {
-              try {
-                timeout(time: 5, unit: 'MINUTES') {
-                  buildInfo = rtGradle.run tasks: 'check', switches: gradleSwitches, buildInfo: buildInfo
+            try {
+              stage('Lint') {
+                try {
+                  timeout(time: 5, unit: 'MINUTES') {
+                    buildInfo = rtGradle.run tasks: 'lint', switches: "$gradleSwitches --continue".toString(), buildInfo: buildInfo
+                  }
+                } finally {
+                  publishHTML(target: [
+                    reportName: 'CodeNarc',
+                    reportDir: 'build/reports/html/codenarc',
+                    reportFiles: [
+                      'main',
+                      'compatTest',
+                      'buildSrc',
+                    ].collect { "${ it }.html" }.join(', '), // TODO: read from directory ?
+                    allowMissing: true,
+                    keepAll: true,
+                    alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
+                  ])
                 }
-              } finally {
-                warnings(
-                  consoleParsers: [
-                    [parserName: 'Java Compiler (javac)'],
-                    [parserName: 'JavaDoc Tool'],
-                  ]
-                )
-                publishHTML(target: [
-                  reportName: 'CodeNarc',
-                  reportDir: 'build/reports/html/codenarc',
-                  reportFiles: [
-                    'main',
-                    'compatTest',
-                    'buildSrc',
-                  ].collect { "${ it }.html" }.join(', '), // TODO: read from directory ?
-                  allowMissing: true,
-                  keepAll: true,
-                  alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
-                ])
-                junit(
-                  testResults: 'build/reports/xml/**/*.xml',
-                  allowEmptyResults: true,
-                  keepLongStdio: true,
-                )
-                publishHTML(target: [
-                  reportName: 'CompatTest',
-                  reportDir: 'build/reports/html/compatTest',
-                  reportFiles:
-                    readFile(file: '.stutter/java8.lock', encoding: 'UTF-8') // TODO: respect other Java versions
-                      .split('[\r\n]+')
-                      // Copy of algorithm from StutterExtension.getLockedVersions
-                      .findAll { !it.startsWith('#') }
-                      .collect { "${ it.trim() }/index.html" }
-                      .join(', '),
-                  allowMissing: true,
-                  keepAll: true,
-                  alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
-                ])
+              }
+            } finally {
+              stage('Test') {
+                try {
+                  timeout(time: 5, unit: 'MINUTES') {
+                    buildInfo = rtGradle.run tasks: 'check', switches: gradleSwitches, buildInfo: buildInfo
+                  }
+                } finally {
+                  warnings(
+                    consoleParsers: [
+                      [parserName: 'Java Compiler (javac)'],
+                      [parserName: 'JavaDoc Tool'],
+                    ]
+                  )
+                  junit(
+                    testResults: 'build/reports/xml/**/*.xml',
+                    allowEmptyResults: true,
+                    keepLongStdio: true,
+                  )
+                  publishHTML(target: [
+                    reportName: 'CompatTest',
+                    reportDir: 'build/reports/html/compatTest',
+                    reportFiles:
+                      readFile(file: '.stutter/java8.lock', encoding: 'UTF-8') // TODO: respect other Java versions
+                        .split('[\r\n]+')
+                        // Copy of algorithm from StutterExtension.getLockedVersions
+                        .findAll { !it.startsWith('#') }
+                        .collect { "${ it.trim() }/index.html" }
+                        .join(', '),
+                    allowMissing: true,
+                    keepAll: true,
+                    alwaysLinkToLastBuild: env.BRANCH_NAME == 'develop' && !env.CHANGE_ID
+                  ])
+                }
               }
             }
             stage('Release') {
