@@ -79,8 +79,8 @@ class GenerateSSHKeyTask extends DefaultTask {
      * https://github.com/gradle/gradle/issues/6108
      * <grv87 2018-07-27>
      */
-    keyType.set((Integer)null)
-    keySize.set((Integer)null)
+    keyType.set project.provider { project.extensions.getByType(KeygenExtension).keyType }
+    keySize.set project.provider { project.extensions.getByType(KeygenExtension).keySize }
     onlyIf {
       !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
     }
@@ -91,8 +91,7 @@ class GenerateSSHKeyTask extends DefaultTask {
    */
   @TaskAction
   void generate() {
-    KeygenExtension keygenExtension = project.extensions.getByType(KeygenExtension)
-    KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.getOrElse(keygenExtension.keyType), keySize.getOrElse(keygenExtension.keySize))
+    KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.get(), keySize.get())
     kpair.writePrivateKey(privateKeyFile.get().asFile.path)
     kpair.writePublicKey(publicKeyFile.get().asFile.path, email)
     kpair.dispose()
