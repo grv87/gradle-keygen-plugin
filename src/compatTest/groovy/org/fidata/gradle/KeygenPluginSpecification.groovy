@@ -35,7 +35,7 @@ import spock.lang.Unroll
 class KeygenPluginSpecification extends Specification {
   @Shared
   @SuppressWarnings('PropertyName')
-  static final JSch jSch = new JSch()
+  static final JSch JSCH = new JSch()
 
   static final String PRIVATE_KEY_FILE_NAME = 'ssh_key'
   static final String PUBLIC_KEY_FILE_NAME = "${ PRIVATE_KEY_FILE_NAME }.pub"
@@ -47,7 +47,7 @@ class KeygenPluginSpecification extends Specification {
 
   final File buildDir = new File(testProjectDir, 'build')
 
-  File buildFile = new File(testProjectDir, 'build.gradle')
+  final File buildFile = new File(testProjectDir, 'build.gradle')
 
   // fixture methods
 
@@ -81,7 +81,7 @@ class KeygenPluginSpecification extends Specification {
 
   // feature methods
   void 'generates ssh key with project-wide settings'() {
-    given: 'build file'
+    given: 'build file with generateSSHKey task'
     File privateKeyFile = new File(buildDir, PRIVATE_KEY_FILE_NAME)
     File publicKeyFile = new File(buildDir, PUBLIC_KEY_FILE_NAME)
     String email = 'test@example.com'
@@ -107,7 +107,7 @@ class KeygenPluginSpecification extends Specification {
     publicKeyFile.exists()
 
     when: 'generated key is loaded'
-    KeyPair kpair = KeyPair.load(jSch, privateKeyFile.bytes, publicKeyFile.bytes)
+    KeyPair kpair = KeyPair.load(JSCH, privateKeyFile.bytes, publicKeyFile.bytes)
 
     then: 'no exception is thrown'
     noExceptionThrown()
@@ -126,7 +126,7 @@ class KeygenPluginSpecification extends Specification {
 
   // feature methods
   void 'generates ssh key with per-task settings'() {
-    given: 'build file'
+    given: 'build file with generateSSHKey task'
     File privateKeyFile = new File(buildDir, PRIVATE_KEY_FILE_NAME)
     File publicKeyFile = new File(buildDir, PUBLIC_KEY_FILE_NAME)
     buildFile << """\
@@ -147,7 +147,7 @@ class KeygenPluginSpecification extends Specification {
     build('generateSSHKey')
 
     then: 'key type equals to requested'
-    KeyPair kpair = KeyPair.load(jSch, privateKeyFile.bytes, publicKeyFile.bytes)
+    KeyPair kpair = KeyPair.load(JSCH, privateKeyFile.bytes, publicKeyFile.bytes)
     kpair.keyType == KeyPair.DSA
 
     and: 'key length equals to requested'
@@ -159,7 +159,7 @@ class KeygenPluginSpecification extends Specification {
   // feature methods
   @Unroll
   void 'dont override existing #keyFileDescription'() {
-    given: 'build file'
+    given: 'build file with generateSSHKey task'
     String dummyKey = 'Dummy key'
     buildFile << """\
       task('generateSSHKey', type: GenerateSSHKey) {
