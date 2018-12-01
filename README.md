@@ -18,7 +18,7 @@ keygen {
   keySize = 4096
 }
 
-task('generateSSHKey', type: GenerateSSHKeyTask) {
+task('generateSSHKey', type: GenerateSSHKey) {
   privateKeyFile = new File(buildDir, 'ssh_key')
   email = 'test@example.com'
 }

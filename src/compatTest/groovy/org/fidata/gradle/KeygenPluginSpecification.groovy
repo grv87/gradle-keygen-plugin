@@ -87,7 +87,7 @@ class KeygenPluginSpecification extends Specification {
         keySize = 2048
       }
 
-      task('generateSSHKey', type: GenerateSSHKeyTask) {
+      task('generateSSHKey', type: GenerateSSHKey) {
         privateKeyFile = new File(${ privateKeyFile.toString().inspect() })
         email = ${ email.inspect() }
       }
@@ -131,7 +131,7 @@ class KeygenPluginSpecification extends Specification {
         keySize = 4096
       }
 
-      task('generateSSHKey', type: GenerateSSHKeyTask) {
+      task('generateSSHKey', type: GenerateSSHKey) {
         privateKeyFile = new File(${ privateKeyFile.toString().inspect() })
         keyType = DSA
         keySize = 2048
@@ -159,7 +159,7 @@ class KeygenPluginSpecification extends Specification {
     File privateKeyFile = new File(buildDir, 'ssh_key')
     File publicKeyFile = new File(buildDir, 'ssh_key.pub')
     buildFile << """\
-      task('generateSSHKey', type: GenerateSSHKeyTask) {
+      task('generateSSHKey', type: GenerateSSHKey) {
         privateKeyFile = new File(${ privateKeyFile.toString().inspect() })
         email = 'test@example.com'
       }
