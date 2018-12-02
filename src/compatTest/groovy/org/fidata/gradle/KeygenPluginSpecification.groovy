@@ -102,7 +102,7 @@ class KeygenPluginSpecification extends Specification {
     """.stripIndent()
 
     when: 'generateSSHKey task is run'
-    build('generateSSHKey')
+    build('generateSSHKey', '--debug')
 
     then: 'private key file is generated'
     privateKeyFile.exists()
@@ -148,7 +148,7 @@ class KeygenPluginSpecification extends Specification {
     """.stripIndent()
 
     when: 'generateSSHKey task is run'
-    build('generateSSHKey')
+    build('generateSSHKey', '--debug')
 
     then: 'key type equals to requested'
     KeyPair kpair = KeyPair.load(JSCH.get(), privateKeyFile.bytes, publicKeyFile.bytes)
@@ -179,7 +179,7 @@ class KeygenPluginSpecification extends Specification {
     keyFile.text = dummyKey
 
     when: 'generateSSHKey task is run'
-    build('generateSSHKey')
+    build('generateSSHKey', '--debug')
 
     then: '#keyFileDescription is not overriden'
     keyFile.text == dummyKey
@@ -192,12 +192,38 @@ class KeygenPluginSpecification extends Specification {
     PUBLIC_KEY_FILE_NAME | 'public key file'
   }
 
+  // feature methods
+  void 'produces warning whenever key file already exists'() {
+    given: 'build file with generateSSHKey task'
+    File privateKeyFile = new File(buildDir, PRIVATE_KEY_FILE_NAME)
+    String dummyKey = 'Dummy key'
+    buildFile << """\
+      task('generateSSHKey', type: GenerateSSHKey) {
+        privateKeyFile = new File(${ privateKeyFile.toString().inspect() })
+        email = 'test@example.com'
+      }
+    """.stripIndent()
+
+    and: 'private key file exists'
+    buildDir.mkdir()
+
+    privateKeyFile.text = dummyKey
+
+    when: 'generateSSHKey task is run'
+    List<String> output = build('generateSSHKey', '--warn').output.split('\\n|\\r\\n|\\r')
+
+    then: 'output contains a warning'
+    output.contains(':generateSSHKey: private or public key file already exists and was not replaced')
+
+    (success = true) != null
+  }
+
   // helper methods
   protected BuildResult build(String... arguments) {
     GradleRunner.create()
       .withGradleVersion(System.getProperty('compat.gradle.version'))
       .withProjectDir(testProjectDir)
-      .withArguments([*arguments, '--full-stacktrace', '--refresh-dependencies', '--debug'])
+      .withArguments([*arguments, '--full-stacktrace', '--refresh-dependencies'])
       .withPluginClasspath()
       .forwardOutput()
       .build()
