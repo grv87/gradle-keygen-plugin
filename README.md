@@ -10,7 +10,7 @@ no installation of extra tools is required.
 ```
 
 plugins {
-  id 'org.fidata.keygen'
+  id 'org.fidata.keygen' version '1.1.0'
 }
 
 keygen {
