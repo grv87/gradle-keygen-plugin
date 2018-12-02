@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 /*
- * Specification for org.fidata.keygen Gradle plugin
+ * Specification for GenerateSSHKey Gradle task class
  * Copyright © 2018  Basil Peace
  *
  * This file is part of gradle-keygen-plugin.
@@ -17,7 +17,7 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.fidata.gradle
+package org.fidata.gradle.tasks
 
 import spock.lang.Specification
 import spock.lang.Shared
@@ -30,9 +30,9 @@ import com.jcraft.jsch.KeyPairDSA
 import spock.lang.Unroll
 
 /**
- * Specification for {@link org.fidata.gradle.KeygenPlugin} class
+ * Specification for {@link GenerateSSHKey} task class
  */
-class KeygenPluginSpecification extends Specification {
+class GenerateSSHKeySpecification extends Specification {
   @Shared
   private static final ThreadLocal<JSch> JSCH = new ThreadLocal<JSch>() {
     @Override
