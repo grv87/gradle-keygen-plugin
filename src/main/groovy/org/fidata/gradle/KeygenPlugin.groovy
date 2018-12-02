@@ -25,7 +25,7 @@ import org.gradle.api.Project
 import org.fidata.gradle.tasks.GenerateSSHKey
 
 /**
- * Provides an environment for a general, language-agnostic project
+ * Gradle plugin for SSH key generation
  */
 @CompileStatic
 final class KeygenPlugin implements Plugin<Project> {

@@ -30,12 +30,21 @@ in `build` directory.
 `keyType` and `keySize` properties can be set per-task via its properties.
 Otherwise, project-wide values from `keygen` extension are used.
 
+List of supported `keyType` values is the same as for JSch:
+*   `RSA`
+*   `DSA`
+*   `ECDSA`
+
+Note that generated keys are stored in plain-text.
+This could become a security issue and should be used cautiously.
+
 Since keys can't be restored, to prevent key loss task will run
 **only if either private or public key file doesn't exist**.
-If you want to regenerate key (including when you changed desired key
+If you want to regenerate key (including when you change desired key
 properties) you should clean them manually beforehand.
 
-Other types of keys could be supported in the future.
+Other types of keys (non-SSH) could be supported in the future.
+
 
 ### Compatibility
 
