@@ -199,6 +199,7 @@ class KeygenPluginSpecification extends Specification {
       .withProjectDir(testProjectDir)
       .withArguments([*arguments, '--full-stacktrace', '--refresh-dependencies', '--debug'])
       .withPluginClasspath()
+      .forwardOutput()
       .build()
   }
 }
