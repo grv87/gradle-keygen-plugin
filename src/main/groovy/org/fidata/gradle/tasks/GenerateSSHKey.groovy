@@ -38,7 +38,18 @@ import org.gradle.api.tasks.TaskAction
  */
 @CompileStatic
 class GenerateSSHKey extends DefaultTask {
-  private final static JSch JSCH = new JSch()
+  /*
+   * CAVEAT:
+   * JSch is not thread-safe.
+   * See https://sourceforge.net/p/jsch/mailman/message/3862293/
+   * <grv87 2018-12-02>
+   */
+  private static final ThreadLocal<JSch> JSCH = new ThreadLocal<JSch>() {
+    @Override
+    protected JSch initialValue() {
+      new JSch()
+    }
+  }
 
   /**
    * Private key file
@@ -90,7 +101,7 @@ class GenerateSSHKey extends DefaultTask {
   void generate() {
     didWork = !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
     if (didWork) {
-      KeyPair kpair = KeyPair.genKeyPair(JSCH, keyType.get(), keySize.get())
+      KeyPair kpair = KeyPair.genKeyPair(JSCH.get(), keyType.get(), keySize.get())
       kpair.writePrivateKey(privateKeyFile.get().asFile.path)
       kpair.writePublicKey(publicKeyFile.get().asFile.path, email)
       kpair.dispose()
