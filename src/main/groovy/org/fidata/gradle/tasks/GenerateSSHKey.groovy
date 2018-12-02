@@ -99,7 +99,7 @@ class GenerateSSHKey extends DefaultTask {
    */
   @TaskAction
   void generate() {
-    didWork = !privateKeyFile.get().asFile.exists() || !publicKeyFile.get().asFile.exists()
+    didWork = !privateKeyFile.get().asFile.exists() && !publicKeyFile.get().asFile.exists()
     if (didWork) {
       KeyPair kpair = KeyPair.genKeyPair(JSCH.get(), keyType.get(), keySize.get())
       kpair.writePrivateKey(privateKeyFile.get().asFile.path)

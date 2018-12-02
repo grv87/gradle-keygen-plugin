@@ -167,7 +167,7 @@ class KeygenPluginSpecification extends Specification {
     String dummyKey = 'Dummy key'
     buildFile << """\
       task('generateSSHKey', type: GenerateSSHKey) {
-        privateKeyFile = new File(${ PRIVATE_KEY_FILE_NAME.inspect() })
+        privateKeyFile = new File(buildDir, ${ PRIVATE_KEY_FILE_NAME.inspect() })
         email = 'test@example.com'
       }
     """.stripIndent()
