@@ -40,7 +40,7 @@ Other types of keys could be supported in the future.
 ### Compatibility
 
 *   Gradle >= 4.4
-*   Developed and tested with JDK 8
+*   Built and tested with JDK 8
 
 
 ------------------------------------------------------------------------
