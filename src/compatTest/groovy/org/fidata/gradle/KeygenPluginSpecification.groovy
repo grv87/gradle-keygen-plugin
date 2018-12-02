@@ -34,8 +34,12 @@ import spock.lang.Unroll
  */
 class KeygenPluginSpecification extends Specification {
   @Shared
-  @SuppressWarnings('PropertyName')
-  static final JSch JSCH = new JSch()
+  private static final ThreadLocal<JSch> JSCH = new ThreadLocal<JSch>() {
+    @Override
+    protected JSch initialValue() {
+      new JSch()
+    }
+  }
 
   static final String PRIVATE_KEY_FILE_NAME = 'ssh_key'
   static final String PUBLIC_KEY_FILE_NAME = "${ PRIVATE_KEY_FILE_NAME }.pub"
@@ -107,7 +111,7 @@ class KeygenPluginSpecification extends Specification {
     publicKeyFile.exists()
 
     when: 'generated key is loaded'
-    KeyPair kpair = KeyPair.load(JSCH, privateKeyFile.bytes, publicKeyFile.bytes)
+    KeyPair kpair = KeyPair.load(JSCH.get(), privateKeyFile.bytes, publicKeyFile.bytes)
 
     then: 'no exception is thrown'
     noExceptionThrown()
@@ -147,7 +151,7 @@ class KeygenPluginSpecification extends Specification {
     build('generateSSHKey')
 
     then: 'key type equals to requested'
-    KeyPair kpair = KeyPair.load(JSCH, privateKeyFile.bytes, publicKeyFile.bytes)
+    KeyPair kpair = KeyPair.load(JSCH.get(), privateKeyFile.bytes, publicKeyFile.bytes)
     kpair.keyType == KeyPair.DSA
 
     and: 'key length equals to requested'
