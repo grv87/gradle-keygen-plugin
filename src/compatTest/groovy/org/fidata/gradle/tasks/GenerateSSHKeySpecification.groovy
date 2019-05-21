@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 /*
  * Specification for GenerateSSHKey Gradle task class
- * Copyright © 2018  Basil Peace
+ * Copyright ©  Basil Peace
  *
  * This file is part of gradle-keygen-plugin.
  *

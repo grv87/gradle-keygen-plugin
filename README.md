@@ -53,7 +53,7 @@ Other types of keys (non-SSH) could be supported in the future.
 
 
 ------------------------------------------------------------------------
-Copyright © 2018  Basil Peace
+Copyright ©  Basil Peace
 
 This file is part of gradle-keygen-plugin.
 
